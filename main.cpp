@@ -30,7 +30,7 @@ void stressTest() {
     auto end = chrono::high_resolution_clock::now();
     auto executionTime = chrono::duration_cast<chrono::microseconds>(end - start);
     cout << "Execution time: " << executionTime.count() << " us.\n";
-    cout << "Read count: " << SEARCH_COUNTER << "\n";
+    cout << "Read count: " << SEARCH_COUNTER/200 << "\n";
 
 
 }
@@ -46,25 +46,23 @@ int main(){
     //patricia->pNode(patricia->getRoot());
 
     //patricia->print();
-
-    cout<<"\n\n\n";
     
-    //stressTest();
+    stressTest();
 
-    ifstream file(FILENAME);
+    // ifstream file(FILENAME);
 
-    string line;
+    // string line;
 
-    auto test = patricia->search("pkfix-helper.man1");
+    // auto test = patricia->search("lefty.1");
 
-    if(test.size()) {
-        for(auto e: test) {
-            file.seekg(e.first, ios::beg);
-            getline(file,line);
-            cout<<line<<"\n";
-        }
-    }
-    file.close();
+    // if(test.size()) {
+    //     for(auto e: test) {
+    //         file.seekg(e.first, ios::beg);
+    //         getline(file,line);
+    //         cout<<line<<"\n";
+    //     }
+    // }
+    // file.close();
 
     return 0;
 }
