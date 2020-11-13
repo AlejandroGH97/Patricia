@@ -83,6 +83,7 @@ void Patricia::insert(string word, unsigned int pdir, unsigned int offset){
                 }
                 else if(index == word.size() && matchIndex == p.first.size()) {
                     cout<<"3\n";
+                    cur = p.second;
                     cur->state = true;
                     cur->filePos.push_back({pdir, offset});
                     return;
@@ -194,15 +195,19 @@ vector<pair<unsigned int, unsigned int>> Patricia::search(string word){
     Node* cur = root;
     int index = 0;
     while(index < word.size()){
-        SEARCH_COUNTER++;
-        if(cur->exists(string(1,word[index]))){//key found
-            
-            cur = (*cur)[string(1,word[index])].second;
+        for(auto c: cur->children) {
+            if(c.first[0] == word[index]) {
+                if(index + c.first.size() <= word.size() && c.first == word.substr(index,c.first.size())) {
+                    index += c.first.size();
+                    cur = c.second;
+                    break;
+                }
+                return vector<pair<unsigned int, unsigned int>>();
+            }
+            if(c.first == cur->children.back().first) {
+                return vector<pair<unsigned int, unsigned int>>();
+            }
         }
-        else{
-            return vector<pair<unsigned int, unsigned int>>();
-        }
-        index++;
     }
     return cur->filePos;
 }

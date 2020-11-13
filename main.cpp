@@ -46,21 +46,25 @@ int main(){
     //patricia->pNode(patricia->getRoot());
 
     patricia->print();
+
+    cout<<"\n\n\n";
     
     //stressTest();
 
-    // ifstream file(FILENAME);
+    ifstream file(FILENAME);
 
-    // auto test = patricia->search("hand");
+    string line;
 
-    // if(test.size()) {
-    //     for(auto e: test) {
-    //         file.seekg(e.first, ios::beg);
-    //         getline(file,line);
-    //         cout<<line<<"\n";
-    //     }
-    // }
-    // file.close();
+    auto test = patricia->search("move");
+
+    if(test.size()) {
+        for(auto e: test) {
+            file.seekg(e.first, ios::beg);
+            getline(file,line);
+            cout<<line<<"\n";
+        }
+    }
+    file.close();
 
     return 0;
 }
