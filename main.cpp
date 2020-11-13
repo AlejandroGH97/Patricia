@@ -5,7 +5,7 @@
 
 using namespace std;
 
-const string FILENAME = "test.db";
+const string FILENAME = "file.db";
 
 void stressTest() {
 
@@ -45,7 +45,7 @@ int main(){
 
     //patricia->pNode(patricia->getRoot());
 
-    patricia->print();
+    //patricia->print();
 
     cout<<"\n\n\n";
     
@@ -55,7 +55,7 @@ int main(){
 
     string line;
 
-    auto test = patricia->search("move");
+    auto test = patricia->search("pkfix-helper.man1");
 
     if(test.size()) {
         for(auto e: test) {

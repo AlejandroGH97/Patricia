@@ -9,6 +9,7 @@
 using namespace std;
 unsigned long long SEARCH_COUNTER = 0;
 typedef pair<char,Node*> child;
+bool DEBUG_MODE = true;
 
 string getFileNameFromRoute(string s) {
      string delimiter = "/";
@@ -23,7 +24,7 @@ string getFileNameFromRoute(string s) {
 
      // cout << s << "\n";
 
-     if ((pos = s.find('.')) != string::npos) {
+     if ((pos = s.find_last_of('.')) != string::npos) {
           token = s.substr(0, pos);
           return token;
      }
@@ -71,43 +72,43 @@ void Patricia::insert(string word, unsigned int pdir, unsigned int offset){
                 int matchIndex = 1;
                 index++;
                 while(matchIndex < p.first.size() && index < word.size() && p.first[matchIndex] == word[index]) {
-                    cout<<"1\n";
+                    if(DEBUG_MODE) cout<<"1\n";
                     matchIndex++;
                     index++;
                 }
                 if(index < word.size() && matchIndex == p.first.size()) {
-                    cout<<"2\n";
+                    if(DEBUG_MODE) cout<<"2\n";
                     parent = cur;
                     cur = p.second;
                     break;
                 }
                 else if(index == word.size() && matchIndex == p.first.size()) {
-                    cout<<"3\n";
+                    if(DEBUG_MODE) cout<<"3\n";
                     cur = p.second;
                     cur->state = true;
                     cur->filePos.push_back({pdir, offset});
                     return;
                 }
-                else if(index == word.size() && matchIndex < p.first.size()) {
-                    cout<<"4\n";
-                    Node* temp = new Node(true);
-                    temp->children.push_back({p.first.substr(matchIndex),cur});
-                    auto it = find_if(parent->children.begin(), parent->children.end(), [&] (const pair<string,Node*>& p) {return p.first == word.substr(0,matchIndex);});
-                    parent->children.erase(it); //parent puede no estar seteado
-                    parent->children.push_back({p.first.substr(0,matchIndex),temp});
-                    temp->filePos.push_back({pdir, offset});
-                    return;
-                }
+                // else if(index == word.size() && matchIndex < p.first.size()) {
+                //     if(DEBUG_MODE) cout<<"4\n";
+                //     Node* temp = new Node(true);
+                //     temp->children.push_back({p.first.substr(matchIndex),cur});
+                //     auto it = find_if(parent->children.begin(), parent->children.end(), [&] (const pair<string,Node*>& p) {return p.first == word.substr(0,matchIndex);});
+                //     parent->children.erase(it); //parent puede no estar seteado
+                //     parent->children.push_back({p.first.substr(0,matchIndex),temp});
+                //     temp->filePos.push_back({pdir, offset});
+                //     return;
+                // }
                 else if(matchIndex == p.first.size()) {
-                    cout<<"5\n";
+                    if(DEBUG_MODE) cout<<"5\n";
                     cur->children.push_back({word.substr(index),new Node(true)});
                     cur = (*cur)[word.substr(index)].second;
                     cur->filePos.push_back({pdir, offset});
                     return;
                 }
-                else if(index < word.size() && matchIndex < p.first.size()){
-                    cout<<"4*\n";
-                    Node* temp = new Node(false);
+                else if(index <= word.size() && matchIndex < p.first.size()){
+                    if(DEBUG_MODE) cout<<"4*\n";
+                    Node* temp = new Node(index == word.size());
                     temp->children.push_back({p.first.substr(matchIndex),p.second});
                     temp->children.push_back({word.substr(index),new Node(true)});
                     auto it = find_if(cur->children.begin(), cur->children.end(), [&] (const pair<string,Node*>& e) {return p.first == e.first;});
@@ -123,14 +124,14 @@ void Patricia::insert(string word, unsigned int pdir, unsigned int offset){
 
         //insertar lo que queda de la palabra en el padre
         if(notFound && cur == root) {
-            cout<<"6\n";
+            if(DEBUG_MODE) cout<<"6\n";
             cur->children.push_back({word.substr(index),new Node(true)});
             cur = (*cur)[word.substr(index)].second;
             cur->filePos.push_back({pdir, offset});
             return;
         }
         else if(notFound) {
-            cout<<"7\n";
+            if(DEBUG_MODE) cout<<"7\n";
             cur->children.push_back({word.substr(index),new Node(true)});
             cur = (*cur)[word.substr(index)].second;
             cur->filePos.push_back({pdir, offset});
@@ -234,22 +235,22 @@ void Patricia::print(Node* node, int l){
 }
 
 void Patricia::build(string filename){ 
-    //cout<<"buildbegin\n";
+    if(DEBUG_MODE) cout<<"buildbegin\n";
     ifstream file(filename);
     // ofstream keys("keys.db");
     string line, key;
     unsigned int pgdir = 0, offset;
     while(getline(file,line)) {
         offset = (unsigned int)file.tellg() - pgdir;
-        cout<<"=================================================================\n";
+        if(DEBUG_MODE) cout<<"=================================================================\n";
         key = getFileNameFromRoute(line);
-        cout<<"Inserting: "<<key<<"\n";
+        if(DEBUG_MODE) cout<<"Inserting: "<<key<<"\n";
         // keys<<key<<"\n";
         insert(key, pgdir, offset);
-        cout<<"=================================================================\n";
+        if(DEBUG_MODE) cout<<"=================================================================\n";
         pgdir = file.tellg();
     }
-    //cout<<"buildend\n";
+    if(DEBUG_MODE) cout<<"buildend\n";
     file.close();
 }
 
