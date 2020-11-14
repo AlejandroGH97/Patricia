@@ -43,13 +43,14 @@ public:
 
     void insert(string word, unsigned int pdir, unsigned int offset);
     void deleteWord(string word);
-    bool prefix(string word);
+    size_t prefix(string word);
     vector<pair<unsigned int, unsigned int>> search(string word);
     void print();
     void print(Node* node, int l);
     void build(string file);
     void patricia();
     void pNode(Node* n);
+    size_t count(Node* x);
 };
 
 Patricia::Patricia(){
@@ -160,22 +161,43 @@ void Patricia::deleteWord(string word){
     
 }
 
-bool Patricia::prefix(string word){
-    Node* cur = root;
-    int index = 0;
-    while(index < word.size()){
-        if(cur->exists(string(1,word[index]))){//key found
-            cur = (*cur)[string(1,word[index])].second;
-        }
-        else{
-            return false;
-        }
-        index++;
+size_t Patricia::count(Node* x) {
+    int cnt = x->filePos.size();
+    for (auto c : x->children) {
+        cnt += count(c.second);
     }
-    return !cur->state;
+    return cnt;
 }
 
-vector<pair<unsigned int, unsigned int>> Patricia::search(string word){
+size_t Patricia::prefix(string prefix){
+    Node* cur = root;
+    int index = 0;
+    while(index < prefix.size()){
+        SEARCH_COUNTER++;
+        for(auto c : cur->children) {
+            // c.first = transicion de padre a hijo
+            // index = curr pos del prefijo
+            if(c.first[0] == prefix[index]) {
+                if(index + c.first.size() <= prefix.size() && c.first == prefix.substr(index,c.first.size())) {
+                    index += c.first.size();
+                    cur = c.second; // me voy al hijo
+                    break;
+                } 
+                else if (c.first.substr(0,prefix.length()-index) == prefix.substr(index)) {
+                    index = prefix.length();
+                    cur = c.second;
+                    return count(cur);
+                }
+            }
+            if(c.first == cur->children.back().first) { // ninguna transicion encaja
+                return 0;
+            }
+        }
+    }
+    return count(cur); // prefijo es palabra
+}
+
+vector< pair<unsigned int, unsigned int> > Patricia::search(string word){
     Node* cur = root;
     int index = 0;
     while(index < word.size()){
@@ -221,7 +243,7 @@ void Patricia::print(Node* node, int l){
 void Patricia::build(string filename){ 
     if(DEBUG_MODE) cout<<"buildbegin\n";
     ifstream file(filename);
-    // ofstream keys("keys.db");
+    ofstream keys("keys.db");
     string line, key;
     unsigned int pgdir = 0, offset;
     while(getline(file,line)) {
@@ -229,7 +251,7 @@ void Patricia::build(string filename){
         if(DEBUG_MODE) cout<<"=================================================================\n";
         key = getFileNameFromRoute(line);
         if(DEBUG_MODE) cout<<"Inserting: "<<key<<"\n";
-        // keys<<key<<"\n";
+        keys<<key<<"\n";
         insert(key, pgdir, offset);
         if(DEBUG_MODE) cout<<"=================================================================\n";
         pgdir = file.tellg();

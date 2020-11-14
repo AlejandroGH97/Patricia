@@ -7,7 +7,7 @@ class Node{
 private:
     friend class Patricia;
     bool state;
-    vector<pair<string,Node*>> children;
+    vector< pair<string,Node*> > children;
     //Start, offset
     vector<pair<unsigned int,unsigned int>> filePos;
 public:
