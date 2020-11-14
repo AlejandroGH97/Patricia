@@ -26,12 +26,22 @@ void stressTest() {
     cout<<"\n\n\n";
     auto start = chrono::high_resolution_clock::now();
     for(int i = 0; i < 100; i++) {
-        auto test = patricia->search(keys[i]);
+        printf("Searching: %s\n", keys[i].c_str());
+        auto test1 = patricia->search(keys[i]);
+        printf("Occurrences: %d\n\n", (int)test1.size());
+        printf("Path of each occurrence:\n");
+        for (auto& path : patricia->getPaths(keys[i])) {
+            cout << path << "\n";
+        }
+        printf("Searching prefix: %s\n", keys[i].c_str());
+        auto test2 = patricia->prefix(keys[i]);
+        printf("Word cnt with given prefix: %d\n\n", (int)test2);
     }
     auto end = chrono::high_resolution_clock::now();
     auto executionTime = chrono::duration_cast<chrono::microseconds>(end - start);
+    cout << "\n===========================\n\n";
     cout << "Execution time: " << executionTime.count() << " us.\n";
-    cout << "Read count (avg): " << SEARCH_COUNTER/200 << "\n";
+    cout << "Read count (avg): " << SEARCH_COUNTER/100 << "\n";
 }
 
 int main(){
@@ -57,28 +67,13 @@ int main(){
     cout << "word with prefix:\n";
     cout << patricia->prefix("Licens") << "\n";
 
-    //patricia->pNode(patricia->getRoot());
+    for (auto& path : patricia->getPaths("License")) {
+        cout << path << "\n";
+    }
 
-    //patricia->print();
-    
-    // stressTest();
+    stressTest();
 
-    // sleep(100);
-
-    // ifstream file(FILENAME);
-
-    // string line;
-
-    // auto test = patricia->search("lefty.1");
-
-    // if(test.size()) {
-    //     for(auto e: test) {
-    //         file.seekg(e.first, ios::beg);
-    //         getline(file,line);
-    //         cout<<line<<"\n";
-    //     }
-    // }
-    // file.close();
+    delete patricia;
 
     return 0;
 }

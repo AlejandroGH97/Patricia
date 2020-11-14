@@ -51,6 +51,7 @@ public:
     void patricia();
     void pNode(Node* n);
     size_t count(Node* x);
+    vector<string> getPaths(string word);
 };
 
 Patricia::Patricia(){
@@ -167,6 +168,22 @@ size_t Patricia::count(Node* x) {
         cnt += count(c.second);
     }
     return cnt;
+}
+
+vector<string> Patricia::getPaths(string word) {
+    auto filePositions = search(word);
+    vector<string> paths;
+    ifstream file("file.db");
+
+    if (!filePositions.empty() && file.is_open()) {
+        string path;
+        for (auto& par : filePositions) {
+            file.seekg(par.first, ios::beg);
+            getline(file, path);
+            paths.push_back(path);
+        }
+    }
+    return paths;
 }
 
 size_t Patricia::prefix(string prefix){
